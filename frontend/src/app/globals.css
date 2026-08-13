@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #ffffff;
+  --paper-strong: #ffffff;
+  --ink: #1c1915;
+  --muted: #6f675c;
+  --line: #eeeeee;
+  --accent: #9a4d2e;
+  --danger: #9f2d2d;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-roboto), var(--font-thai), sans-serif;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: #ffffff;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.section-sub {
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.field small,
+.field em {
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.field em {
+  color: var(--danger);
+  font-style: normal;
+}
+
+.field small {
+  color: var(--muted);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: #fff;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--ink);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--ink);
+}
+
+.input:read-only {
+  background: var(--paper-strong);
+  color: var(--muted);
+}
+
+.primary-btn,
+.ghost-btn,
+.lang-tab,
+.overlay-btn,
+.link-btn {
+  cursor: pointer;
+  border: 0;
+  font-size: 0.875rem;
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.65rem 1.15rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.primary-btn:disabled,
+.ghost-btn:disabled,
+.lang-tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ghost-btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  padding: 0.55rem 0.9rem;
+}
+
+.lang-tab {
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  color: var(--muted);
+}
+
+.lang-tab.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.overlay-btn {
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.link-btn {
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
