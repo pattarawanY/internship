@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState, type CSSProperties } from "react";
 
 import {
   LANGUAGES,
+  languageIndex,
+  normalizeDetails,
   type LanguageCode,
   type PenNameDetail,
 } from "@/lib/writer-profile";
@@ -11,38 +13,69 @@ import {
 type PenNameFieldsProps = {
   details: Record<LanguageCode, PenNameDetail>;
   pinnedLanguage: LanguageCode;
+  onChange?: (
+    details: Record<LanguageCode, PenNameDetail>,
+    pinnedLanguage: LanguageCode,
+  ) => void;
 };
 
 export default function PenNameFields({
   details,
   pinnedLanguage,
+  onChange,
 }: PenNameFieldsProps) {
   const [language, setLanguage] = useState<LanguageCode>(pinnedLanguage);
-  const [values, setValues] = useState(details);
-  const current = values[language];
+  const [values, setValues] = useState(() => normalizeDetails(details));
+  const current = values[language] ?? { penName: "", bio: "" };
 
   const updateCurrent = (patch: Partial<PenNameDetail>) => {
-    setValues((prev) => ({
-      ...prev,
-      [language]: { ...prev[language], ...patch },
-    }));
+    setValues((prev) => {
+      const next = {
+        ...prev,
+        [language]: {
+          ...(prev[language] ?? { penName: "", bio: "" }),
+          ...patch,
+        },
+      };
+      onChange?.(next, language);
+      return next;
+    });
+  };
+
+  const switchLanguage = (code: LanguageCode) => {
+    setLanguage(code);
+    onChange?.(values, code);
   };
 
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <input type="hidden" name="pinnedLanguage" value={language} />
 
-      <div className="flex gap-1 rounded-full bg-[var(--paper-strong)] p-1">
+      <div
+        className="lang-tabs"
+        role="radiogroup"
+        aria-label="Language"
+        style={
+          {
+            "--lang-index": languageIndex(language),
+          } as CSSProperties
+        }
+      >
         {LANGUAGES.map((item) => (
-          <button
-            key={item.code}
-            type="button"
-            className={`lang-tab ${language === item.code ? "is-active" : ""}`}
-            onClick={() => setLanguage(item.code)}
-          >
-            {item.label}
-          </button>
+          <Fragment key={item.code}>
+            <input
+              type="radio"
+              id={`lang-tab-${item.code}`}
+              name="languageTab"
+              checked={language === item.code}
+              onChange={() => switchLanguage(item.code)}
+            />
+            <label className="lang-tab" htmlFor={`lang-tab-${item.code}`}>
+              {item.code.toUpperCase()}
+            </label>
+          </Fragment>
         ))}
+        <span className="lang-glider" aria-hidden="true" />
       </div>
 
       <div className="flex w-full flex-col gap-3 text-left">
@@ -74,12 +107,12 @@ export default function PenNameFields({
           <input
             type="hidden"
             name={`penName_${item.code}`}
-            value={values[item.code].penName}
+            value={values[item.code]?.penName ?? ""}
           />
           <input
             type="hidden"
             name={`bio_${item.code}`}
-            value={values[item.code].bio}
+            value={values[item.code]?.bio ?? ""}
           />
         </div>
       ))}

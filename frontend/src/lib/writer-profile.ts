@@ -1,6 +1,8 @@
+/** Source of truth for pen-name languages. Add an entry here to get a new radio tab. */
 export const LANGUAGES = [
   { code: "th", label: "Thai" },
   { code: "en", label: "English" },
+  { code: "jp", label: "Japanese" }, 
 ] as const;
 
 export const SOCIAL_PLATFORMS = [
@@ -14,6 +16,22 @@ export const SOCIAL_PLATFORMS = [
 
 export type LanguageCode = (typeof LANGUAGES)[number]["code"];
 export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number]["value"];
+
+export const DEFAULT_LANGUAGE: LanguageCode = LANGUAGES[0].code;
+
+export const isLanguageCode = (value: string): value is LanguageCode =>
+  LANGUAGES.some((item) => item.code === value);
+
+export const parseLanguageCode = (
+  value: string | null | undefined,
+): LanguageCode =>
+  value && isLanguageCode(value) ? value : DEFAULT_LANGUAGE;
+
+export const languageIndex = (code: LanguageCode) =>
+  Math.max(
+    0,
+    LANGUAGES.findIndex((item) => item.code === code),
+  );
 
 export type StoredImage = {
   fileName: string;
@@ -42,6 +60,43 @@ export type WriterProfile = {
   pinnedLanguage: LanguageCode;
 };
 
+export const emptyDetails = (): Record<LanguageCode, PenNameDetail> =>
+  LANGUAGES.reduce(
+    (acc, { code }) => {
+      acc[code] = { penName: "", bio: "" };
+      return acc;
+    },
+    {} as Record<LanguageCode, PenNameDetail>,
+  );
+
+export const normalizeDetails = (
+  details: Partial<Record<LanguageCode, PenNameDetail>> | undefined,
+): Record<LanguageCode, PenNameDetail> =>
+  LANGUAGES.reduce(
+    (acc, { code }) => {
+      acc[code] = {
+        penName: details?.[code]?.penName ?? "",
+        bio: details?.[code]?.bio ?? "",
+      };
+      return acc;
+    },
+    {} as Record<LanguageCode, PenNameDetail>,
+  );
+
+export const firstFilledValue = (
+  details: Record<LanguageCode, PenNameDetail>,
+  preferred: LanguageCode,
+  field: keyof PenNameDetail,
+): string => {
+  const preferredValue = details[preferred]?.[field]?.trim() ?? "";
+  if (preferredValue) return preferredValue;
+  for (const { code } of LANGUAGES) {
+    const value = details[code]?.[field]?.trim() ?? "";
+    if (value) return value;
+  }
+  return "";
+};
+
 export const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const STORAGE_KEY = "internship.writer-profile";
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
@@ -53,11 +108,8 @@ export const emptyProfile = (): WriterProfile => ({
   avatar: null,
   background: null,
   socialLinks: [],
-  details: {
-    th: { penName: "", bio: "" },
-    en: { penName: "", bio: "" },
-  },
-  pinnedLanguage: "th",
+  details: emptyDetails(),
+  pinnedLanguage: DEFAULT_LANGUAGE,
 });
 
 export const createRowId = () =>
@@ -68,7 +120,13 @@ export const loadProfile = (): WriterProfile => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyProfile();
-    return { ...emptyProfile(), ...JSON.parse(raw) } as WriterProfile;
+    const parsed = JSON.parse(raw) as Partial<WriterProfile>;
+    return {
+      ...emptyProfile(),
+      ...parsed,
+      details: normalizeDetails(parsed.details),
+      pinnedLanguage: parseLanguageCode(parsed.pinnedLanguage),
+    };
   } catch {
     return emptyProfile();
   }

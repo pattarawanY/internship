@@ -83,7 +83,6 @@ body {
 
 .primary-btn,
 .ghost-btn,
-.lang-tab,
 .overlay-btn,
 .link-btn {
   cursor: pointer;
@@ -103,8 +102,7 @@ body {
 }
 
 .primary-btn:disabled,
-.ghost-btn:disabled,
-.lang-tab:disabled {
+.ghost-btn:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -117,15 +115,53 @@ body {
   padding: 0.55rem 0.9rem;
 }
 
-.lang-tab {
-  border-radius: 999px;
-  padding: 0.35rem 0.8rem;
-  color: var(--muted);
+.lang-tabs {
+  --lang-index: 0;
+  --lang-tab-width: 50px;
+  display: flex;
+  position: relative;
+  background-color: #fff;
+  padding: 0.75rem;
+  border-radius: 99px;
 }
 
-.lang-tab.is-active {
-  background: var(--ink);
-  color: var(--paper);
+.lang-tabs input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lang-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  height: 30px;
+  width: var(--lang-tab-width);
+  font-size: 0.8rem;
+  color: #000;
+  font-weight: 500;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: color 0.15s ease-in;
+}
+
+.lang-tabs input[type="radio"]:checked + .lang-tab {
+  color: #000000;
+}
+
+.lang-glider {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  height: 30px;
+  width: var(--lang-tab-width);
+  background-color: #e6eef9;
+  z-index: 1;
+  border-radius: 99px;
+  transition: transform 0.25s ease-out;
+  transform: translateX(calc(var(--lang-index) * var(--lang-tab-width)));
 }
 
 .overlay-btn {
